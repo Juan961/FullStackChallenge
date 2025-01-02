@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes loading {
+  0% {
+    background-color: hsl(0, 0%, 80%);
+  }
+  100% {
+    background-color: hsl(0, 0%, 90%);
+  }
+}
+
+.animation-loader { animation: loading 1s infinite alternate; }
