@@ -34,6 +34,12 @@ Tecnologías:
 - CSS: Tailwind
 - OS: Linux
 
+# 🚀 Requirements
+- Go 1.22
+- Python: 3.10
+- Node: 22
+- pnpm: 9.15
+
 # 🚀 Start
 ``` bash
 ./indexer enron_mail_20110402
