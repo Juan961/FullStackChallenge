@@ -5,12 +5,17 @@
     <section class="flex mb-5 relative">
       <IconSearch class="w-6 text-[#141313] absolute top-1/2 -translate-y-1/2 left-4" />
 
-      <input class="w-full pl-12 pr-4 py-3 text-[#141313] text-lg border rounded-lg font-light" maxlength="128" type="text" placeholder="Search" v-model="search" @change="newSearch">
+      <input class="w-full pl-12 pr-4 py-3 text-[#141313] text-lg border rounded-lg font-light" maxlength="128" type="text" placeholder="Search" v-model="search" @input="manageInputChange(search)">
 
       <p v-if="total !== null && took !== null" class="absolute text-[#141313] top-1/2 -translate-y-1/2 right-4 font-light">{{ total }} hits matched in {{ took }}ms</p>
     </section>
 
-    <section v-if="loading" class="flex flex-wrap gap-4 justify-evenly">
+    <section v-if="empty" class="text-center">
+      <p class="text-xl font-medium">Start typing</p>
+      <p class="font-light">Start writing in the input to look for results</p>
+    </section>
+
+    <section v-else-if="loading" class="flex flex-wrap gap-4 justify-evenly">
       <SearchResultItemSkeleton v-for="i in 6" :key="i" />
     </section>
 
@@ -26,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 
 import IconSearch from '../components/icons/Search.vue'
 
@@ -54,9 +59,6 @@ interface Item {
   "_type": string;
 } 
 
-const totalRecords = ref<null|number>(null)
-const storageSize = ref<null|number>(null)
-
 const search = ref("")
 
 const took = ref<null|number>(null)
@@ -64,29 +66,30 @@ const total = ref<null|number>(null)
 const loading = ref(false)
 const results = ref<Item[]>([])
 
-const newSearch = async () => {
-  loading.value = true
-
-  const response = await searchAction(search.value)
-
-  results.value = response["hits"]
-  took.value = response["took"]
-  total.value = response["total"]
-
-  loading.value = false
-}
+const empty = computed(() => search.value === "" )
 
 const convertBytesToMegabytes = (bytes: number) => bytes / 1024 / 1024;
 
-onMounted(async () => {
-  const response = await info()
+const manageInputChange = async ( newSearch:string ) => {
+  if ( newSearch.trim() === "" ) {
+    results.value = []
+    search.value = ""
+    return
+  }
 
-  totalRecords.value = response.doc_num
+  setTimeout(async () => {
+    if ( newSearch !== search.value ) return
+    loading.value = true
 
-  const megabytes = convertBytesToMegabytes(response.storage_size)
+    const response = await searchAction(search.value.trim())
 
-  storageSize.value = Number(megabytes.toFixed(2))
-})
+    results.value = response["hits"]
+    took.value = response["took"]
+    total.value = response["total"]
+
+    loading.value = false
+  }, 500);
+}
 </script>
 
 <style>
