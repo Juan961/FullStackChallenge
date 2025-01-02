@@ -1,25 +1,13 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
-func List() (response []byte) {
-	// Get user credentials from environment variables
-	user := "admin" // os.Getenv("SEARCH_USER")
-	password := "Complexpass#123" // os.Getenv("SEARCH_PASSWORD")
-	if user == "" || password == "" {
-		fmt.Println("Environment variables SEARCH_USER and SEARCH_PASSWORD must be set")
-		return
-	}
-	creds := user + ":" + password
-	// Encode credentials to base64
-	bas64encodedCreds := base64.StdEncoding.EncodeToString([]byte(creds))
-
+func List(credentials string) (response []byte) {
 	// List index parameters, # of records to return
 	params := map[string]interface{}{
 		"size": 100,
@@ -28,7 +16,7 @@ func List() (response []byte) {
 	// Define request headers
 	headers := map[string]string{
 		"Content-type":  "application/json",
-		"Authorization": "Basic " + bas64encodedCreds,
+		"Authorization": "Basic " + credentials,
 	}
 
 	// Define the index and host URL
