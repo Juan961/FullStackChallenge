@@ -75,9 +75,5 @@ $RECYCLE.BIN/
 ### Custom ###
 data/
 zincsearch
-zincsearch_0.4.10_linux_x86_64.tar.gz
-enron_mail_20110402.tar
 enron_mail_20110402/
-enron_mail_20110402 copy/
-READMEZinc.md
 .env
