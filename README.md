@@ -44,6 +44,10 @@ Tecnologías:
 Configure .env file based on .env.example
 
 ``` bash
-(source '.env' && ./indexer enron_mail_20110402)
-(source '.env' && ./app --port 3000)
+# Run once
+sudo chmod +x ./indexer
+sudo chmod +x ./app 
+sudo ./indexer.sh enron_mail_20110402
+# Run everytime to start the app
+sudo ./app.sh --port 3000
 ```
