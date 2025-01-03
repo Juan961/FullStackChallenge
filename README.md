@@ -34,14 +34,16 @@ Tecnologías:
 - CSS: Tailwind
 - OS: Linux
 
-# 🚀 Requirements
+# ⚠️ Requirements
 - Go 1.22
 - Python: 3.10
 - Node: 22
 - pnpm: 9.15
 
 # 🚀 Start
+Configure .env file based on .env.example
+
 ``` bash
-./indexer enron_mail_20110402
-./app --port 3000
+(source '.env' && ./indexer enron_mail_20110402)
+(source '.env' && ./app --port 3000)
 ```
