@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"os"
-	"fmt"
 
-	"github.com/go-chi/cors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -21,7 +21,9 @@ func main() {
 
 	// Set PORT
 	port := os.Getenv("BACKEND_PORT")
-	if port == "" { port = "3333" }
+	if port == "" {
+		port = "3333"
+	}
 
 	// Set credentials for ZincSearch
 	user := os.Getenv("ZINCSEARCH_ADMIN_USER")
@@ -50,8 +52,15 @@ func main() {
 
 	// Set index info endpoint
 	r.Get("/info", func(w http.ResponseWriter, r *http.Request) {
-		response := List(string(bas64encodedCreds))
-		
+		statusCode, error, response := List(string(bas64encodedCreds))
+
+		w.WriteHeader(statusCode)
+
+		if error != nil {
+			w.Write([]byte(error.Error()))
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	})
@@ -62,8 +71,15 @@ func main() {
 
 		query := queryParams.Get("query")
 
-		results := Search(string(bas64encodedCreds), query)
-		
+		statusCode, error, results := Search(string(bas64encodedCreds), query)
+
+		w.WriteHeader(statusCode)
+
+		if error != nil {
+			w.Write([]byte(error.Error()))
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(results)
 	})

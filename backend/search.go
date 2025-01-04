@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func Search(credentials string, term string) (results []byte) {
+func Search(credentials string, term string) (int, error, []byte) {
 	// Define search parameters
 	params := map[string]interface{}{
 		"search_type": "match",
@@ -32,14 +32,14 @@ func Search(credentials string, term string) (results []byte) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)
-		return
+		return http.StatusInternalServerError, err, nil
 	}
 
 	// Create a new HTTP POST request
 	req, err := http.NewRequest("POST", zincURL, strings.NewReader(string(jsonData)))
 	if err != nil {
 		fmt.Println("Error creating request:", err)
-		return
+		return http.StatusInternalServerError, err, nil
 	}
 
 	// Set the request headers
@@ -52,7 +52,7 @@ func Search(credentials string, term string) (results []byte) {
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Error making request:", err)
-		return
+		return http.StatusInternalServerError, err, nil
 	}
 	defer res.Body.Close()
 
@@ -65,40 +65,40 @@ func Search(credentials string, term string) (results []byte) {
 
 	// Accessing "hits" -> "hits" array
 	if hits, ok := result["hits"].(map[string]interface{}); ok {
-			if hitsArray, ok := hits["hits"].([]interface{}); ok {
-					response["hits"] = hitsArray
-			} else {
-					fmt.Println("Error: 'hits' is not a slice")
-			}
+		if hitsArray, ok := hits["hits"].([]interface{}); ok {
+			response["hits"] = hitsArray
+		} else {
+			fmt.Println("Error: 'hits' is not a slice")
+		}
 	} else {
-			fmt.Println("Error: 'hits' is not a map")
+		fmt.Println("Error: 'hits' is not a map")
 	}
 
 	// Accessing "took"
 	if took, ok := result["took"].(float64); ok {
-			response["took"] = took
+		response["took"] = took
 	} else {
-			fmt.Println("Error: 'took' is not a float64")
+		fmt.Println("Error: 'took' is not a float64")
 	}
 
 	// Accessing "total" (total value)
 	if hits, ok := result["hits"].(map[string]interface{}); ok {
-	    if total, ok := hits["total"].(map[string]interface{}); ok {
-	        if value, ok := total["value"].(float64); ok {
-	            response["total"] = value
-	        } else {
-	            fmt.Println("Error: 'value' is not a float64")
-	        }
-	    } else {
-	        fmt.Println("Error: 'total' is not a map")
-	    }
+		if total, ok := hits["total"].(map[string]interface{}); ok {
+			if value, ok := total["value"].(float64); ok {
+				response["total"] = value
+			} else {
+				fmt.Println("Error: 'value' is not a float64")
+			}
+		} else {
+			fmt.Println("Error: 'total' is not a map")
+		}
 	}
 
-	results, err = json.Marshal(response)
+	results, err := json.Marshal(response)
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)
-		return
+		return http.StatusInternalServerError, err, nil
 	}
 
-	return results
+	return http.StatusOK, nil, results
 }
