@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func List(credentials string) (response []byte) {
+func List(credentials string) (int, error, []byte) {
 	// List index parameters, # of records to return
 	params := map[string]interface{}{
 		"size": 100,
@@ -27,14 +27,14 @@ func List(credentials string) (response []byte) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)
-		return
+		return http.StatusInternalServerError, err, nil
 	}
 
 	// Create a new HTTP GET request
 	req, err := http.NewRequest("GET", zincURL, strings.NewReader(string(jsonData)))
 	if err != nil {
 		fmt.Println("Error creating request:", err)
-		return
+		return http.StatusInternalServerError, err, nil
 	}
 
 	// Set the request headers
@@ -47,7 +47,7 @@ func List(credentials string) (response []byte) {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Error sending request:", err)
-		return
+		return http.StatusInternalServerError, err, nil
 	}
 	defer resp.Body.Close()
 
@@ -59,7 +59,7 @@ func List(credentials string) (response []byte) {
 	list, ok := result["list"].([]interface{})
 	if !ok {
 		fmt.Println("Error: result['list'] is not a slice")
-		return
+		return http.StatusInternalServerError, fmt.Errorf("Error: result['list'] is not a slice"), nil
 	}
 
 	// Iterate over the list
@@ -76,15 +76,15 @@ func List(credentials string) (response []byte) {
 			results, err := json.Marshal(itemMap["stats"])
 			if err != nil {
 				fmt.Println("Error marshaling JSON:", err)
-				return
+				return http.StatusInternalServerError, err, nil
 			}
 
-			return results
+			return http.StatusOK, nil, results
 		}
 	}
 
 	// Return error if index not found
 	fmt.Println("Index not found")
 
-	return nil
+	return http.StatusNotFound, fmt.Errorf("Index not found"), nil
 }
