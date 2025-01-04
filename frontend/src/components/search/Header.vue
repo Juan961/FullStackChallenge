@@ -2,8 +2,8 @@
   <section class="mb-5">
     <h1 class="text-4xl font-medium">Email search</h1>
 
-    <p v-if="error" class="font-light"># records: {{ totalRecords }}</p>
-    <p v-if="error" class="font-light">Storage used: {{ storageSize }}MB</p>
+    <p v-if="!error" class="font-light"># records: {{ totalRecords }}</p>
+    <p v-if="!error" class="font-light">Storage used: {{ storageSize }}MB</p>
   </section>
 </template>
 
