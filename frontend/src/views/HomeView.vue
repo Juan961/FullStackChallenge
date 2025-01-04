@@ -15,6 +15,10 @@
       <p class="font-light">Start writing in the input to look for results</p>
     </section>
 
+    <section v-else-if="error" class="text-center">
+      <p class="text-xl font-medium">{{ error }}</p>
+    </section>
+
     <section v-else-if="loading" class="flex flex-wrap gap-4 justify-evenly">
       <SearchResultItemSkeleton v-for="i in 6" :key="i" />
     </section>
@@ -65,12 +69,15 @@ const took = ref<null|number>(null)
 const total = ref<null|number>(null)
 const loading = ref(false)
 const results = ref<Item[]>([])
+const error = ref<null|string>(null)
 
 const empty = computed(() => search.value === "" )
 
 const convertBytesToMegabytes = (bytes: number) => bytes / 1024 / 1024;
 
 const manageInputChange = async ( newSearch:string ) => {
+  error.value = null
+
   if ( newSearch.trim() === "" ) {
     results.value = []
     search.value = ""
@@ -81,11 +88,15 @@ const manageInputChange = async ( newSearch:string ) => {
     if ( newSearch !== search.value ) return
     loading.value = true
 
-    const response = await searchAction(search.value.trim())
+    try {
+      const response = await searchAction(search.value.trim())
 
-    results.value = response["hits"]
-    took.value = response["took"]
-    total.value = response["total"]
+      results.value = response["hits"]
+      took.value = response["took"]
+      total.value = response["total"]  
+    } catch (error) {
+      error.value = error.message    
+    }    
 
     loading.value = false
   }, 500);
