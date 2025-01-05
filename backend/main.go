@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	_ "net/http/pprof" // Import pprof for profiling
 	"os"
 
 	"github.com/go-chi/chi/v5"
