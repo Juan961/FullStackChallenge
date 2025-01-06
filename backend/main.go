@@ -51,6 +51,9 @@ func main() {
 		MaxAge:           300, // Cache the CORS preflight response for 5 minutes
 	}).Handler)
 
+	// Mount profiler
+	r.Mount("/debug", middleware.Profiler())
+
 	// Set index info endpoint
 	r.Get("/info", func(w http.ResponseWriter, r *http.Request) {
 		statusCode, error, response := List(string(bas64encodedCreds))
